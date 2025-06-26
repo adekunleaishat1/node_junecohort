@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+</head>
+<body>
+    <form action="/user/todo" method="post">
+        <input type="text" placeholder="title" id="title" name="title">
+        <input type="text" placeholder="description" name="description" id="description">
+        <button class="Display">Submit</button>
+
+    </form>
+
+    <div>
+        <p>
+            <% todo.forEach((element,index) => { %>
+             <h1><%= element.title  %></h1>
+            <h1><%= element.description %></h1>
+
+            <form action="/todo/delete", method="post">
+                <input name="id" value="<%= element._id %>" type="text" hidden>
+                <button class="btn btn-dangers">Delete</button>
+            </form>
+           <form action="/todo/edit/<%= element._id %>" method="get">
+            <button>Edit</button>
+           </form>
+
+            <% }) %>
+        </p>
+    </div>
+
+
+</body>
+</html>
