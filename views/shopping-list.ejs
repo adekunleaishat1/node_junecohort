@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/shopping-list" method="post">
+        <input placeholder="itemType" name="itemType" type="text">
+        <input placeholder="itemPrice" name="itemPrice" type="text"  id="price">
+        <input placeholder="itemQuantity" name="itemQuantity" type="text" id="quantity" >
+        <input placeholder="total" name="total" type="text" id="total">
+        <button>purchase</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <td>Item type</td>
+                <td>Item price</td>
+                <td>Item quantity</td>
+                <td>Total</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <% shopping.forEach(element => { %>
+                <td><%= element.itemType %></td>
+                <td><%= element.itemQuantity %></td>
+                <td><%= element.itemPrice %></td>
+                <td><%= element.total %></td>
+                <td>
+                    <form action="/shoppingupdate/<%= element._id %>" method="post">
+                        <button id="mybtn">
+                            <% if (element.completed == true) { %>
+                                <input checked value="true"  type="checkbox" name="completed" id="completed">
+                             
+                            <% }else{ %>
+                                <input  value="true"  type="checkbox" name="completed" id="completed">
+                             
+                            <% } %>
+                        </button>
+                    </form>
+                </td>
+                <% }) %>
+               
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+<script>
+    let mybtn = document.getElementById("mybtn")
+    document.getElementById('completed').addEventListener("input",()=>{
+        mybtn.click()
+    })
+
+</script>

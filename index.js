@@ -3,6 +3,7 @@ const app =  express()
 const ejs = require("ejs")
 const mongoose = require("mongoose")
 require("dotenv").config()
+const connect = require("./Dbconfig/db.connect")
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded())
@@ -23,9 +24,74 @@ description : {type:String, trim: true ,required:true}
 })
 const todomodel = mongoose.model("todo_collection" , todoSchema)
   
+//shopping-list
+//shopping schema
+const shoppingSchema = mongoose.Schema({
+  itemType: {type: String, trim: true,required: true},
+  itemPrice: {type: String, trim: true,required: true},
+  itemQuantity: {type: String, trim: true,required: true},
+  total: {type: String, trim: true,required: true},
+  completed:{type:Boolean, default:false}
+})
+ const shoppingModel = mongoose.model("shopping-list", shoppingSchema)
+ app.post("/shopping-list", async (req, res)=>{
+  console.log(req.body);
+  
+  const list = {itemType,itemPrice,itemQuantity,total} = req.body
+  console.log(list);
+  try {
+    const shopping = await shoppingModel.create({itemType,itemPrice,itemQuantity,total})
+    console.log(shopping);
+    
+  } catch (error) {
+    console.log(error);
+    
+  }
+  res.redirect("/shopping-list")
+ })
+ app.post("/shoppingupdate/:id",async(req, res)=>{
+try {
+  const {id} = req.params
+  const {completed} = req.body
+  let shops = await shoppingModel.findOne({_id:id})
+ console.log(id);
+ console.log(shops);
+ 
+ 
+  if (shops.completed == true) {
+    await shoppingModel.findByIdAndUpdate(
+      id,
+      { completed:false, new:true})
+    res.redirect('/shopping-list')
+  }else{
+   const myshop=  await shoppingModel.findByIdAndUpdate( 
+    id,
+    {completed:true, new:true}
+  )
+    console.log(myshop);
+    
+   res.redirect('/shopping-list')
+
+  }
+
+} catch (error) {
+  console.log(error);
+  
+}
+ })
+ app.get("/shopping-list",async(req, res)=>{
+  try {
+    let shopping =  await shoppingModel.find()
+    res.render("shopping-list", {shopping})
+  } catch (error) {
+    console.log(error);
+    
+    
+  }
+ })
+
+
 // pust to database
-
-
 
 const allUser = []
 
@@ -161,27 +227,14 @@ app.post("/user/login", async(req,res)=>{
    return res.redirect("/login")
    
  } catch (error) {
-  
+  console.log(error);
+  return res.redirect("/login")
  }
 })
 
 
 
-const connect = async ()=>{
-  try {
-   const connection =  await mongoose.connect(process.env.MONGO_URI)
-   if (connection) {
-     console.log("database connected succesfully");
-     
-   }
-  } catch (error) {
-    console.log(error);
-    
-  }
-}
 connect()
-
-
 const port = 8005
 
 app.listen(port,()=>{
