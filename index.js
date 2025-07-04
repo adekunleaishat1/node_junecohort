@@ -4,19 +4,14 @@ const ejs = require("ejs")
 const mongoose = require("mongoose")
 require("dotenv").config()
 const connect = require("./Dbconfig/db.connect")
+const userrouter = require("./routes/user.route")
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded())
+app.use("/user",userrouter)
 
 // CRUD CREATE READ UPDATE DELETE
-const userschema = mongoose.Schema({
- username:{type:String,trim:true,required:true},
- email:{type:String,trim:true, required:true, unique:true},
- password:{type:Number,trim:true, required:true},
- profilePicture:{type:String,}
-},{timestamp:true})
 
-const usermodel = mongoose.model("user_collection", userschema)
 // TODO
 const todoSchema = mongoose.Schema({
 title : {type:String, trim: true ,required:true},
@@ -34,6 +29,7 @@ const shoppingSchema = mongoose.Schema({
   completed:{type:Boolean, default:false}
 })
  const shoppingModel = mongoose.model("shopping-list", shoppingSchema)
+
  app.post("/shopping-list", async (req, res)=>{
   console.log(req.body);
   
@@ -98,15 +94,10 @@ const allUser = []
 const todo = []
 let errormessage = ""
 
-app.get("/",(request, response)=>{
-  //   response.send("Welcome To your Node Class")
-   response.render("index",{name:"Shola"})
-})
 
 
-app.get("/signup",(req, res)=>{
-    res.render("signup",{errormessage})
-})
+
+
 
 app.get("/login",(req, res)=>{
    res.render("login")
