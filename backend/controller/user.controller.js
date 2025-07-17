@@ -1,6 +1,7 @@
 const usermodel = require("../model/user.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const cloudinary = require("../utils/cloudinary")
 
 const saltRound = 10
 const Signup = async (req,res) =>{
@@ -85,4 +86,34 @@ const Verifytoken = async (req, res) =>{
    }
 }
 
-module.exports = {Signup, Login, Verifytoken}
+
+const UploadProfile = async (req, res) =>{
+   try {
+      const {userid} = req.params
+      const {image } = req.body 
+      if (!image) {
+       return  res.status(406).send({message:"Add your profile picture", status:false})
+      }
+
+    const uploadimage = await cloudinary.uploader.upload(image)
+    console.log(uploadimage.secure_url);
+    if (uploadimage) {
+        await usermodel.findByIdAndUpdate(
+      userid,
+      {$set:{profilePicture:uploadimage.secure_url}}
+        )
+
+     return  res.status(200).send({message:"profile picture uploaded", status:true})
+
+    }
+    
+      
+   } catch (error) {
+      if (error.message.includes("request entity too large")) {
+      return res.status(413).send({message:"Image should not exceed 5mb", status:false})     
+         
+      }
+   }
+}
+
+module.exports = {Signup, Login, Verifytoken, UploadProfile}

@@ -7,7 +7,7 @@ const cors = require("cors")
 const userrouter = require("./routes/user.route")
 
 app.use(cors({origin:"*"}))
-app.use(express.json())
+app.use(express.json({limit:"50mb"}))
 app.use("/user", userrouter) 
 
 
