@@ -2,6 +2,7 @@ const usermodel = require("../model/user.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const cloudinary = require("../utils/cloudinary")
+const SendVerificationMail = require("../utils/verificationMail")
 
 const saltRound = 10
 const Signup = async (req,res) =>{
@@ -13,15 +14,18 @@ const Signup = async (req,res) =>{
     }
      const hashedpassword = await bcrypt.hash(password,saltRound )
      console.log(hashedpassword);
-     
+     const otp = Math.floor( Math.random() * 1000 )
     const newuser = await usermodel.create({
       ...req.body,
-      password:hashedpassword
+      password:hashedpassword,
+      otp
     })
     if (!newuser) {
        return res.status(403).send({message:"Unable to create user", status:false})     
     }
-    return res.status(200).send({message:"user created successfully", status:true})
+    const link = `http://localhost:8005/user/mail/${otp}`
+     await SendVerificationMail(email, username,link)
+    return res.status(200).send({message:"user created successfully,check your mail for verification.", status:true})
     
  } catch (error) {
     console.log(error);
@@ -38,27 +42,46 @@ const Signup = async (req,res) =>{
  }
 }
 
+const Verifymail = async(req, res) =>{
+  
+   try {
+      const {otp} = req.params
+    const existuser =  await usermodel.findOneAndUpdate(
+      { otp},
+      {$set:{verified:true, otp:""}})
+
+    if (existuser) {     
+     res.render("verify", {message:`email verified successfully ${existuser.email}`}) 
+    }
+   } catch (error) {
+    res.render("verify", {message:error.message}) 
+   }
+}
+
 
 const Login = async(req, res) =>{
    try {
       const {email, password} = req.body
       if (!email || !password) {
-         res.status(406).send({message:"All fields are mandatory", status:false})
+       return  res.status(406).send({message:"All fields are mandatory", status:false})
       }
      const existuser =  await usermodel.findOne({email})
-     const correctpassword = await bcrypt.compare(password, existuser.password)
-     console.log(correctpassword);
-     
+      if (!existuser) {
+       return  res.status(407).send({message:"Invalid email or password", status:false})
+     }
+      const correctpassword = await bcrypt.compare(password, existuser.password)
+      if (!correctpassword) {
+        return res.status(407).send({message:"Invalid email or password", status:false})
+     }
+    
+    if (existuser.verified == false) {
+        return res.status(407).send({message:"Mail has not been verified.", status:false})
       
-     if (existuser && correctpassword) {
-        const token = await jwt.sign({email:existuser.email, id:existuser._id},process.env.SCERETKEY,{expiresIn:60})
-         res.status(200).send({message:"Login successful", status:true, token})
-     }
-     
-     if (!existuser || !correctpassword) {
-         res.status(407).send({message:"Invalid email or password", status:false})
-     }
+    }
 
+        const token = await jwt.sign({email:existuser.email, id:existuser._id},process.env.SCERETKEY,{expiresIn:60})
+        return res.status(200).send({message:"Login successful", status:true, token})
+     
    } catch (error) {
       console.log(error);
       
@@ -99,8 +122,8 @@ const UploadProfile = async (req, res) =>{
     console.log(uploadimage.secure_url);
     if (uploadimage) {
         await usermodel.findByIdAndUpdate(
-      userid,
-      {$set:{profilePicture:uploadimage.secure_url}}
+        userid,
+        {$set:{profilePicture:uploadimage.secure_url}}
         )
 
      return  res.status(200).send({message:"profile picture uploaded", status:true})
@@ -110,10 +133,11 @@ const UploadProfile = async (req, res) =>{
       
    } catch (error) {
       if (error.message.includes("request entity too large")) {
-      return res.status(413).send({message:"Image should not exceed 5mb", status:false})     
-         
+        return res.status(413).send({message:"Image should not exceed 5mb", status:false})        
       }
+      return res.status(500).send({message:error.message, status:false})     
+      
    }
 }
 
-module.exports = {Signup, Login, Verifytoken, UploadProfile}
+module.exports = {Signup, Login, Verifytoken, UploadProfile, Verifymail}

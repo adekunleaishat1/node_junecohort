@@ -3,12 +3,13 @@ const app = express()
 const env = require("dotenv").config()
 const connect = require("./Dbconfig/db.connect")
 const cors = require("cors")
-
+const ejs = require("ejs")
 const userrouter = require("./routes/user.route")
 
 app.use(cors({origin:"*"}))
 app.use(express.json({limit:"50mb"}))
 app.use("/user", userrouter) 
+app.set("view engine", "ejs")
 
 
 connect()
