@@ -5,7 +5,7 @@ const cloudinary = require("../utils/cloudinary")
 const SendVerificationMail = require("../utils/verificationMail")
 
 const saltRound = 10
-const Signup = async (req,res) =>{
+const Signup = async (req,res, next) =>{
  try {
     console.log(req.body);
     const {username, email, password} = req.body
@@ -29,15 +29,10 @@ const Signup = async (req,res) =>{
     
  } catch (error) {
     console.log(error);
-    if (error.message.includes("password: Cast to Number failed")) {
-    return res.status(500).send({message:"Password must be a number", status:false})     
-        
-    }
-    if (error.message.includes("E11000 duplicate key error")) {
-    return res.status(500).send({message:"User already exist", status:false})     
-        
-    }
-    return res.status(500).send({message:error.message, status:false})     
+   //  console.log("error name",error.name);
+   //  console.log("error code",error.code);
+    next(error)
+   //  return res.status(500).send({message:error.message, status:false})     
     
  }
 }
