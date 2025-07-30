@@ -14,6 +14,7 @@ const Login = () => {
           const name = e.target.name
          setformdetail({...Formdetail, [name]:e.target.value})
         }
+        
         const Loginuser = () =>{
             axios.post("http://localhost:8005/user/login",Formdetail)
         .then((res)=>{
