@@ -57,34 +57,42 @@ const Verifymail = async(req, res) =>{
 
 const Login = async(req, res, next) =>{
    try {
-      console.log(req.body);
+     
       const {email, password} = req.body
+
       if (!email || !password) {
+          console.log("checking for empty input field");
        return res.status(406).send({message:"All fields are mandatory", status:false})
       }
+
      const existuser =  await usermodel.findOne({email})
      console.log(existuser, "exist user detail");
      
       if (!existuser) {
        return res.status(405).send({message:"Invalid email or password", status:false})
      }
-     console.log("checking for correctpaswor detail");
+
+     console.log("checking for correctpassword detail");
         
       const correctpassword = await bcrypt.compare(password, existuser.password)
-     console.log(correctpassword, "checking for correctpasword detail");
+
+       console.log(correctpassword, "checking for correctpasword detail");
+
       if (!correctpassword) {
-         console.log("return an error if the password is not correct");    
-        return res.status(407).send({message:"Invalid email or password", status:false})
+         
+         console.log("return an error if the password is not correct");  
+         return res.status(407).json({message:"Invald email or password", status:false})  
      }
      console.log("checking if the user has been verified");
      console.log(existuser.verified);
      
     if (existuser.verified == false) {
         return res.status(409).send({message:"Mail has not been verified.", status:false})
-      
     }
+    
       const token = await jwt.sign({email:existuser.email, id:existuser._id},process.env.SCERETKEY,{expiresIn:'1d'})
-      return res.status(200).send({message:"Login successful", status:true, token})
+
+      return res.status(200).json({message:"Login successful", status:true, token})
      
    } catch (error) {
       console.log(error,"Error coming from the server");
