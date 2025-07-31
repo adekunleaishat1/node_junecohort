@@ -1,6 +1,7 @@
 import axios from 'axios'
 import React,{useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const Dashboard = () => {
     const navigate = useNavigate()
@@ -15,7 +16,7 @@ const Dashboard = () => {
       image:[]
      })
    useEffect(() => {
-      axios.get("http://localhost:8005/user/verify",{
+      axios.get(`${baseUrl}/user/verify`,{
         headers:{
             "Authorization": `bearer ${token}`
         }
@@ -42,7 +43,7 @@ const Dashboard = () => {
     const user = JSON.parse(localStorage.getItem("current_User"))
     console.log(user._id);
     
-    axios.patch(`http://localhost:8005/user/upload/${user._id}`,{image})
+    axios.patch(`${baseUrl}/user/upload/${user._id}`,{image})
     .then((res)=>{
         console.log(res);
         
@@ -75,7 +76,7 @@ const Dashboard = () => {
 
    const Uploadproduct = () =>{
     console.log(productDetails);
-     axios.post('http://localhost:8005/product/add',productDetails)
+     axios.post(`${baseUrl}/product/add`,productDetails)
     .then((res)=>{
         console.log(res);
         

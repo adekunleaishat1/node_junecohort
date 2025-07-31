@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import Input from '../Input'
 import axios from 'axios'
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
@@ -16,7 +17,7 @@ const Login = () => {
         }
         
         const Loginuser = () =>{
-            axios.post("http://localhost:8005/user/login",Formdetail)
+            axios.post(`${baseUrl}/user/login`,Formdetail)
         .then((res)=>{
             console.log(res);
             localStorage.setItem("token", res.data.token)

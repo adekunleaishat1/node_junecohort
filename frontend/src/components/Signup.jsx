@@ -2,6 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import Input from '../Input'
 import {useNavigate} from "react-router-dom"
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const Signup = () => {
     const [Formdetail, setformdetail] = useState({
@@ -18,7 +19,7 @@ const Signup = () => {
       const Handlesubmit = () =>{
         console.log(Formdetail);
         setLoading(true)
-        axios.post("http://localhost:8005/user/signup",Formdetail)
+        axios.post(`${baseUrl}/user/signup`,Formdetail)
         .then((res)=>{
             console.log(res);
             navigate("/login")

@@ -23,7 +23,8 @@ const Signup = async (req,res, next) =>{
     if (!newuser) {
        return res.status(403).send({message:"Unable to create user", status:false})     
     }
-    const link = `http://localhost:8005/user/mail/${otp}`
+    const baseurl = process.env.API_URL
+    const link = `${baseurl}/user/mail/${otp}`
      await SendVerificationMail(email, username,link)
     return res.status(200).send({message:"user created successfully,check your mail for verification.", status:true})
     
