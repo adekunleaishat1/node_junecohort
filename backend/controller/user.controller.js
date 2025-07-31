@@ -55,7 +55,7 @@ const Verifymail = async(req, res) =>{
 }
 
 
-const Login = async(req, res, next) =>{
+const Login = async(req, res) =>{
    try {
      
       const {email, password} = req.body
@@ -96,8 +96,8 @@ const Login = async(req, res, next) =>{
      
    } catch (error) {
       console.log(error,"Error coming from the server");
-      next(error)
-      // return res.status(500).send({message:error.message, status:false})     
+      // next(error)
+      return res.status(500).send({message:error.message, status:false})     
    }
 }
 
